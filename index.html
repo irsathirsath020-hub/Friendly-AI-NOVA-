@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#080b1c" />
+  <title>Humanised 3D AI Assistant</title>
+  <style>
+    :root { color-scheme: dark; --bg:#080b1c; --panel:rgba(19,27,59,.74); --line:rgba(142,224,255,.19); --soft:#9aaaca; --cyan:#8ceeff; --violet:#a39cff; --ink:#eaf3ff; --mono:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace; --sans:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    *,:before,:after { box-sizing:border-box; } html { scroll-behavior:smooth; } body { margin:0; min-width:320px; background:var(--bg); color:var(--ink); font-family:var(--sans); } button,textarea { font:inherit; } button { cursor:pointer; } button:focus-visible,textarea:focus-visible { outline:2px solid var(--cyan); outline-offset:3px; }
+    .app { position:relative; min-height:100vh; overflow:hidden; background:radial-gradient(circle at 86% 7%,rgba(112,72,255,.19),transparent 26rem),radial-gradient(circle at 0 48%,rgba(44,199,255,.11),transparent 26rem),linear-gradient(135deg,#070917 0%,#0b1024 48%,#090a17 100%); isolation:isolate; }
+    .app:before { content:""; position:absolute; inset:0; z-index:-2; opacity:.55; background-image:linear-gradient(rgba(131,182,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(131,182,255,.05) 1px,transparent 1px); background-size:54px 54px; mask-image:linear-gradient(#000,transparent 78%); }
+    .container { width:min(1240px,100%); margin:auto; padding:0 32px; }
+    .topbar { height:88px; display:flex; align-items:center; justify-content:space-between; gap:20px; }
+    .brand { display:flex; align-items:center; gap:11px; text-decoration:none; color:var(--ink); font:700 .95rem/1 var(--mono); letter-spacing:.08em; }.brand i { display:grid; place-items:center; width:34px; height:34px; font-style:normal; color:var(--cyan); border:1px solid rgba(138,239,255,.43); border-radius:9px; background:linear-gradient(135deg,rgba(87,219,255,.18),rgba(117,84,255,.12)); box-shadow:0 0 20px rgba(80,216,255,.18); }.brand b { color:var(--cyan); }
+    .online { display:flex; align-items:center; gap:7px; color:rgba(196,217,244,.66); font:500 .62rem/1 var(--mono); letter-spacing:.14em; }.online i { width:7px; height:7px; border-radius:50%; background:#62f5c2; box-shadow:0 0 10px #62f5c2; }
+    .top-actions { display:flex; align-items:center; gap:8px; }.quiet-btn { display:inline-flex; align-items:center; gap:8px; min-height:36px; padding:0 12px; border:1px solid rgba(159,190,255,.2); border-radius:8px; color:#c8d8f3; background:rgba(28,35,71,.33); transition:transform .16s ease,border-color .16s ease; }.quiet-btn:hover { border-color:rgba(130,234,255,.58); transform:translateY(-1px); }.quiet-btn svg { width:15px; height:15px; }
+    .hero { display:grid; grid-template-columns:minmax(0,1fr) minmax(340px,.93fr); gap:clamp(48px,7vw,112px); align-items:center; min-height:570px; padding:64px 32px 56px; }.eyebrow { display:flex; align-items:center; gap:11px; margin:0; color:#98e7ff; font:500 .65rem/1.3 var(--mono); letter-spacing:.16em; }.eyebrow:before { content:""; width:26px; height:1px; background:linear-gradient(90deg,#79ebff,transparent); }.hero h1 { max-width:670px; margin:22px 0 20px; color:#eef5ff; font-size:clamp(3.1rem,6.1vw,5.9rem); line-height:.97; letter-spacing:-.07em; }.hero h1 em { font-style:normal; color:#94eaff; text-shadow:0 0 35px rgba(84,222,255,.22); }.lead { max-width:560px; margin:0; color:var(--soft); font-size:1rem; line-height:1.8; }.actions { display:flex; flex-wrap:wrap; align-items:center; gap:20px; margin-top:31px; }.primary { display:inline-flex; align-items:center; gap:10px; min-height:47px; padding:0 17px; border:1px solid rgba(153,248,255,.74); border-radius:8px; color:#06111f; background:linear-gradient(100deg,#78e5ff,#92afff); box-shadow:0 12px 32px rgba(65,200,255,.2); font-weight:700; }.primary:hover { transform:translateY(-2px); box-shadow:0 16px 38px rgba(65,200,255,.3); }.primary:active { transform:scale(.97); }.text-link { border:0; color:#d4e2f9; background:transparent; font-weight:600; }.text-link span { color:var(--cyan); margin-left:5px; }.signals { display:flex; flex-wrap:wrap; gap:20px; margin-top:46px; color:#8395b9; font:500 .62rem/1.4 var(--mono); letter-spacing:.03em; }.signals span { display:flex; align-items:center; gap:7px; }.signals i { display:inline-block; width:7px; height:7px; border:1px solid #6ae7fa; border-radius:2px; }
+    .visual { position:relative; min-height:430px; display:grid; place-items:center; perspective:900px; }.corner { position:absolute; width:60px; height:60px; opacity:.55; }.corner.one { top:35px; right:20px; border-top:1px solid #89e7ff; border-right:1px solid #89e7ff; }.corner.two { bottom:35px; left:20px; border-left:1px solid #977eff; border-bottom:1px solid #977eff; }
+    .core-scene { position:relative; width:min(390px,80vw); aspect-ratio:1; border:0; padding:0; background:transparent; transform-style:preserve-3d; }.core-aura { position:absolute; inset:21%; border-radius:50%; background:radial-gradient(circle,rgba(107,227,255,.21),transparent 67%); filter:blur(14px); }.core-shell { position:absolute; inset:31%; display:grid; place-items:center; overflow:hidden; border:1px solid rgba(157,244,255,.78); border-radius:50%; background:radial-gradient(circle at 34% 26%,#efffff 0 3%,#62d9ff 12%,#1c468e 37%,#171a5b 70%,#070b28 100%); box-shadow:inset -16px -13px 28px rgba(2,6,37,.78),inset 7px 7px 24px rgba(202,255,255,.32),0 0 31px rgba(94,228,255,.42),0 0 72px rgba(81,99,255,.25); transform:translateZ(32px); animation:breathe 5s ease-in-out infinite; }.core-shell:after { content:""; position:absolute; inset:-20%; background:conic-gradient(from 120deg,transparent 0 27%,rgba(159,252,255,.45) 34%,transparent 42% 80%,rgba(134,123,255,.3) 89%,transparent 100%); mix-blend-mode:screen; animation:spin 10s linear infinite; }.grid { position:absolute; inset:0; opacity:.34; background-image:linear-gradient(rgba(137,255,255,.44) 1px,transparent 1px),linear-gradient(90deg,rgba(137,255,255,.44) 1px,transparent 1px); background-size:10px 10px; mask-image:radial-gradient(circle,#000 0 40%,transparent 78%); }.pupil { position:relative; z-index:1; width:29%; aspect-ratio:1; border-radius:50%; background:#050a27; box-shadow:0 0 0 4px rgba(166,249,255,.44),0 0 18px #90f0ff; }.glint { position:absolute; z-index:2; top:19%; left:24%; width:20%; aspect-ratio:1; border-radius:50%; background:rgba(241,255,255,.9); filter:blur(1px); }.ring { position:absolute; inset:16%; border:1px solid transparent; border-top-color:rgba(117,237,255,.68); border-left-color:rgba(117,237,255,.14); border-radius:50%; animation:orbit 6.5s linear infinite; transform:rotateX(66deg); }.ring.two { inset:7%; border-top-color:rgba(150,115,255,.6); border-left-color:rgba(150,115,255,.13); animation-duration:9s; animation-direction:reverse; }.tag { position:absolute; z-index:2; padding:9px 10px; border:1px solid rgba(145,198,255,.2); border-radius:7px; color:#bed3f2; background:rgba(17,25,57,.57); box-shadow:0 12px 30px rgba(0,0,0,.18); backdrop-filter:blur(10px); font:500 .53rem/1 var(--mono); letter-spacing:.08em; }.tag.left { top:24%; left:0; animation:float 5.5s ease-in-out infinite; }.tag.right { right:0; bottom:22%; animation:float 6.5s ease-in-out -1.5s infinite; }.core-status { position:absolute; z-index:3; bottom:5%; left:50%; translate:-50%; white-space:nowrap; color:#a9c4e8; font:500 .58rem/1 var(--mono); letter-spacing:.11em; }.core-status b { color:#84ecff; }.thinking .core-shell { animation-duration:1.2s; box-shadow:inset -16px -13px 28px rgba(2,6,37,.78),inset 7px 7px 24px rgba(202,255,255,.34),0 0 44px rgba(94,228,255,.6),0 0 93px rgba(81,99,255,.44); }.thinking .ring { animation-duration:2s; }
+    .conversation { display:grid; grid-template-columns:minmax(260px,.62fr) minmax(350px,1fr); align-items:start; gap:clamp(42px,7vw,110px); padding:84px 32px; }.conversation h2 { max-width:460px; margin:17px 0 15px; font-size:clamp(2.2rem,4vw,3.8rem); line-height:1.04; letter-spacing:-.065em; }.side-copy { max-width:390px; margin:0; color:#94a5c5; font-size:.92rem; line-height:1.8; }
+    .console { overflow:hidden; min-height:580px; border:1px solid var(--line); border-radius:20px; background:linear-gradient(145deg,rgba(25,36,73,.73),rgba(12,17,43,.87)); box-shadow:0 28px 82px rgba(0,0,0,.28),inset 0 1px rgba(202,247,255,.07); backdrop-filter:blur(22px); }.console-head { display:flex; align-items:center; justify-content:space-between; min-height:72px; padding:14px 17px; border-bottom:1px solid rgba(151,204,255,.12); }.identity { display:flex; align-items:center; gap:11px; }.avatar { display:grid; place-items:center; width:35px; height:35px; color:#8ceeff; border:1px solid rgba(143,233,255,.23); border-radius:10px; background:linear-gradient(135deg,rgba(102,226,255,.24),rgba(104,83,255,.21)); }.identity strong { display:block; font-size:.8rem; }.identity small { display:block; margin-top:3px; color:#8193b8; font:400 .56rem/1 var(--mono); letter-spacing:.06em; }.icon-btn { display:grid; place-items:center; width:34px; height:34px; border:0; border-radius:7px; color:#a8b7d4; background:transparent; }.icon-btn:hover { background:rgba(126,170,255,.12); }.icon-btn svg { width:17px; height:17px; }
+    .messages { height:395px; overflow:auto; padding:22px 20px; scrollbar-width:thin; scrollbar-color:rgba(134,231,255,.34) transparent; }.empty { display:flex; flex-direction:column; justify-content:center; align-items:flex-start; height:100%; }.empty-badge { display:grid; place-items:center; width:46px; height:46px; margin-bottom:18px; color:#8eecff; border:1px solid rgba(134,238,255,.24); border-radius:13px; background:rgba(98,220,255,.08); }.empty h3 { margin:10px 0; font-size:1.35rem; letter-spacing:-.04em; }.empty p { max-width:410px; margin:0; color:#94a6c5; font-size:.83rem; line-height:1.7; }.prompt-list { display:grid; width:100%; gap:8px; margin-top:25px; }.prompt { display:flex; align-items:center; justify-content:space-between; width:100%; padding:12px 14px; border:1px solid rgba(132,197,255,.15); border-radius:10px; color:#c0d0eb; background:rgba(41,55,104,.2); text-align:left; font-size:.75rem; transition:transform .18s ease,border-color .18s ease,background .18s ease; }.prompt:hover { border-color:rgba(108,226,255,.43); background:rgba(67,160,210,.12); transform:translateX(3px); }.prompt span:last-child { color:#78eaff; }
+    .message { display:flex; align-items:flex-start; gap:10px; max-width:92%; margin-bottom:17px; }.message.user { flex-direction:row-reverse; margin-left:auto; }.message .msg-avatar { display:grid; place-items:center; flex:0 0 auto; width:30px; height:30px; border:1px solid rgba(143,233,255,.23); border-radius:9px; color:#8ceeff; background:linear-gradient(135deg,rgba(102,226,255,.24),rgba(104,83,255,.21)); }.message.user .msg-avatar { color:#c2c0ff; border-color:rgba(164,177,255,.19); background:rgba(102,103,200,.16); }.bubble { padding:11px 13px; border:1px solid rgba(128,206,255,.12); border-radius:3px 13px 13px; color:#d7e5fb; background:rgba(45,68,119,.23); font-size:.8rem; line-height:1.65; white-space:pre-wrap; }.user .bubble { border-color:rgba(153,141,255,.16); border-radius:13px 3px 13px 13px; background:rgba(95,73,177,.22); }.label { display:block; margin-bottom:5px; color:#7beaff; font:500 .53rem/1 var(--mono); letter-spacing:.13em; }.user .label { color:#bdb7ff; text-align:right; }.typing { display:flex; align-items:center; gap:8px; margin:0 0 14px 40px; color:#8ea0c4; font:500 .64rem/1 var(--mono); }.dots { display:inline-flex; gap:4px; }.dots i { width:4px; height:4px; border-radius:50%; background:#85efff; animation:dot 1.05s ease-in-out infinite; }.dots i:nth-child(2) { animation-delay:.15s; }.dots i:nth-child(3) { animation-delay:.3s; }.error { margin:0 0 12px 40px; color:#ffb3c0; font-size:.72rem; line-height:1.55; }
+    .composer { display:flex; align-items:flex-end; gap:9px; padding:14px 16px 8px; border-top:1px solid rgba(151,204,255,.12); background:rgba(5,8,26,.25); }.composer textarea { min-height:44px; max-height:110px; flex:1; resize:none; padding:12px; border:1px solid rgba(148,210,255,.16); border-radius:10px; color:#dceaff; background:rgba(31,42,83,.43); font-size:.8rem; line-height:1.4; }.composer textarea::placeholder { color:#7182a7; }.send { display:grid; place-items:center; flex:0 0 auto; width:44px; height:44px; border:0; border-radius:10px; color:#06111f; background:linear-gradient(135deg,#79ecff,#9ea3ff); }.send:disabled { cursor:not-allowed; opacity:.45; }.send svg { width:18px; height:18px; }.composer-note { margin:0; padding:0 16px 15px; color:#617297; font:.53rem/1.3 var(--mono); letter-spacing:.03em; }.sound-toggle { display:inline-flex; align-items:center; gap:5px; margin-left:6px; padding:3px 5px; border:0; color:#7f99bc; background:transparent; font:.52rem/1 var(--mono); }.sound-toggle.on { color:#89ecff; }
+    .footer { position:relative; display:flex; align-items:flex-end; justify-content:space-between; gap:20px; padding:28px 32px 33px; }.footer:before { content:""; position:absolute; top:0; right:32px; left:32px; height:1px; background:linear-gradient(90deg,transparent,rgba(129,205,255,.25),transparent); }.credit p { margin:0 0 4px; color:rgba(196,215,244,.67); font:500 .65rem/1.2 var(--sans); letter-spacing:.055em; }.credit span { color:rgba(126,164,209,.62); font:.55rem/1 var(--mono); letter-spacing:.1em; }.footer-note { margin:0; color:rgba(122,143,181,.52); font:.52rem/1 var(--mono); letter-spacing:.1em; }
+    .modal[hidden] { display:none; }.modal { position:fixed; inset:0; z-index:20; display:grid; place-items:center; padding:18px; }.modal-backdrop { position:absolute; inset:0; border:0; background:rgba(2,5,17,.72); backdrop-filter:blur(8px); }.modal-card { position:relative; width:min(460px,100%); padding:24px; overflow:hidden; border:1px solid rgba(137,225,255,.27); border-radius:18px; background:linear-gradient(145deg,rgba(29,41,82,.97),rgba(12,16,39,.98)); box-shadow:0 30px 90px rgba(0,0,0,.52),inset 0 1px rgba(211,248,255,.09); }.modal-card:before { content:""; position:absolute; inset:0; pointer-events:none; background:radial-gradient(circle at 90% 0,rgba(104,98,255,.25),transparent 12rem); }.modal-head { position:relative; display:flex; align-items:flex-start; justify-content:space-between; gap:14px; }.modal-kicker { margin:0 0 8px; color:#8ceeff; font:500 .58rem/1 var(--mono); letter-spacing:.14em; }.modal h3 { margin:0; font-size:1.4rem; letter-spacing:-.04em; }.modal-text { position:relative; margin:14px 0 19px; color:#a6b6d4; font-size:.78rem; line-height:1.65; }.close-modal { width:31px; height:31px; border:1px solid rgba(159,190,255,.16); border-radius:8px; color:#b7c9e8; background:rgba(15,23,53,.45); font-size:1.1rem; }.form-label { position:relative; display:block; margin-bottom:8px; color:#b9c9e5; font:500 .64rem/1 var(--mono); letter-spacing:.07em; }.key-input { position:relative; width:100%; min-height:44px; padding:11px 12px; border:1px solid rgba(148,210,255,.23); border-radius:10px; color:#dceaff; background:rgba(10,17,43,.58); font-size:.8rem; }.key-input::placeholder { color:#7182a7; }.modal-state { position:relative; min-height:17px; margin:10px 0 0; color:#82a1c7; font:.6rem/1.4 var(--mono); }.modal-state.ready { color:#76ecc8; }.modal-actions { position:relative; display:flex; justify-content:flex-end; gap:9px; margin-top:20px; }.secondary { min-height:39px; padding:0 13px; border:1px solid rgba(159,190,255,.2); border-radius:8px; color:#c6d5ef; background:rgba(34,46,89,.38); font-size:.75rem; }.save-key { min-height:39px; padding:0 14px; border:1px solid rgba(153,248,255,.66); border-radius:8px; color:#06111f; background:linear-gradient(100deg,#78e5ff,#92afff); font-size:.75rem; font-weight:700; }
+    @keyframes breathe { 0%,100% { transform:translateZ(32px) scale(1); } 50% { transform:translateZ(32px) scale(1.055); } } @keyframes spin { to { transform:rotate(360deg); } } @keyframes orbit { to { transform:rotateX(66deg) rotateZ(360deg); } } @keyframes float { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-9px); } } @keyframes dot { 0%,100% { transform:translateY(0); opacity:.4; } 50% { transform:translateY(-3px); opacity:1; } }
+    @media (max-width:880px) { .hero { grid-template-columns:1fr; padding-top:32px; }.visual { order:-1; min-height:310px; }.core-scene { width:min(310px,82vw); }.conversation { grid-template-columns:1fr; gap:10px; padding-top:60px; }.side-copy { max-width:600px; }.console { min-height:560px; } }
+    @media (max-width:560px) { .container,.hero,.conversation,.footer { padding-left:19px; padding-right:19px; }.topbar { height:76px; }.online { display:none; }.quiet-btn { width:36px; padding:0; justify-content:center; }.quiet-btn span { display:none; }.hero { gap:7px; min-height:auto; padding-top:22px; padding-bottom:42px; }.visual { min-height:265px; }.core-scene { width:min(270px,84vw); }.tag { font-size:.45rem; }.tag.left { left:-4px; }.tag.right { right:-4px; }.hero h1 { margin-top:18px; font-size:clamp(2.75rem,13vw,3.6rem); }.lead { font-size:.9rem; line-height:1.75; }.signals { gap:12px; margin-top:30px; }.conversation { padding-top:50px; padding-bottom:54px; }.conversation h2 { font-size:2.3rem; }.console { min-height:540px; border-radius:15px; }.messages { height:365px; padding:18px 14px; }.empty { padding:0 3px; }.prompt { font-size:.7rem; }.footer { align-items:flex-start; flex-direction:column; padding-bottom:24px; }.footer-note { padding-top:0; }.modal-card { padding:20px; } }
+    @media (prefers-reduced-motion:reduce) { *,*:before,*:after { animation-duration:.01ms!important; animation-iteration-count:1!important; scroll-behavior:auto!important; transition-duration:.01ms!important; } }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="container topbar">
+      <a class="brand" href="#top" aria-label="Nova AI home"><i>◉</i><span>NOVA<b>.</b>AI</span></a>
+      <p class="online"><i></i>SYSTEM ONLINE</p>
+      <div class="top-actions"><button class="quiet-btn" id="open-settings" type="button" aria-label="Open Gemini settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.8 1.8 0 0 0 .36 1.99l.06.06-2.6 2.6-.06-.06A1.8 1.8 0 0 0 15.17 19a1.8 1.8 0 0 0-1.17 1.66v.09h-3.7v-.09A1.8 1.8 0 0 0 9.13 19a1.8 1.8 0 0 0-1.99.36l-.06.06-2.6-2.6.06-.06A1.8 1.8 0 0 0 4.9 15a1.8 1.8 0 0 0-1.65-1.17h-.1v-3.7h.1A1.8 1.8 0 0 0 4.9 9a1.8 1.8 0 0 0-.36-1.99l-.06-.06 2.6-2.6.06.06A1.8 1.8 0 0 0 9.13 4a1.8 1.8 0 0 0 1.17-1.66v-.09H14v.09A1.8 1.8 0 0 0 15.17 4a1.8 1.8 0 0 0 1.99-.36l.06-.06 2.6 2.6-.06.06A1.8 1.8 0 0 0 19.4 9a1.8 1.8 0 0 0 1.65 1.17h.1v3.7h-.1A1.8 1.8 0 0 0 19.4 15Z"/></svg><span>Settings</span></button><button class="quiet-btn" id="open-chat" type="button" aria-label="Open chat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 15a4 4 0 0 1-4 4H8l-4 3V7a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4z"/><path d="M8 11h8M8 15h5"/></svg><span>Open chat</span></button></div>
+    </header>
+
+    <main id="top">
+      <section class="container hero" aria-labelledby="hero-title">
+        <div>
+          <p class="eyebrow">HUMAN-CENTRED INTELLIGENCE</p>
+          <h1 id="hero-title">Thoughtful answers.<br><em>Designed for depth.</em></h1>
+          <p class="lead">A focused AI workspace with contextual conversation, transparent limitations, and a calm interface for complex thinking.</p>
+          <div class="actions"><button class="primary" id="talk-button" type="button">Talk to AI <span>↗</span></button><button class="text-link" id="explore-button" type="button">Explore the interface <span>↘</span></button></div>
+          <div class="signals"><span><i></i>Server-secure</span><span><i></i>Context aware</span><span><i></i>Clear by design</span></div>
+        </div>
+        <div class="visual">
+          <i class="corner one"></i><i class="corner two"></i>
+          <button class="core-scene" id="ai-core" type="button" aria-label="Focus the AI assistant input">
+            <i class="core-aura"></i><i class="ring"></i><i class="ring two"></i>
+            <span class="core-shell"><i class="grid"></i><i class="pupil"></i><i class="glint"></i></span>
+            <span class="tag left">⌁ NEURAL LINK</span><span class="tag right">◌ FOCUS READY</span><span class="core-status"><b>✦</b> <span id="core-copy">Awaiting signal</span></span>
+          </button>
+        </div>
+      </section>
+
+      <section class="container conversation" id="assistant-console" aria-labelledby="chat-title">
+        <div>
+          <p class="eyebrow">CONVERSATION INTERFACE</p>
+          <h2 id="chat-title">A calm surface for complex work.</h2>
+          <p class="side-copy">For this personal demo, Gemini is called directly from the browser using a key entered in Settings. The key lives in memory only and is cleared when the page is refreshed or closed.</p>
+        </div>
+        <section class="console" aria-label="AI assistant chat">
+          <header class="console-head"><div class="identity"><span class="avatar">◉</span><div><strong>Nova Assistant</strong><small id="status-copy">SESSION-READY INTELLIGENCE</small></div></div><button class="icon-btn" id="clear-chat" type="button" aria-label="Clear conversation" title="Clear conversation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M10 11v6M14 11v6M9 7l1-3h4l1 3M6 7l1 13h10l1-13"/></svg></button></header>
+          <div class="messages" id="messages" aria-live="polite"></div>
+          <form class="composer" id="chat-form"><textarea id="chat-input" rows="1" maxlength="2000" placeholder="Ask Nova anything..." aria-label="Message Nova Assistant"></textarea><button class="send" id="send-button" type="submit" aria-label="Send message"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg></button></form>
+          <p class="composer-note">Enter to send&nbsp; • &nbsp;Shift + Enter for a new line<button class="sound-toggle on" id="sound-toggle" type="button" aria-pressed="true">SOUND: ON</button></p>
+        </section>
+      </section>
+    </main>
+    <footer class="container footer"><div class="credit"><p>Made by Mohammed Irsath M</p><span>AI &amp; ML Engineering</span></div><p class="footer-note">NOVA.AI / HUMAN-CENTRED INTELLIGENCE</p></footer>
+    <section class="modal" id="settings-modal" role="dialog" aria-modal="true" aria-labelledby="settings-title" hidden>
+      <button class="modal-backdrop" id="settings-backdrop" type="button" aria-label="Close settings"></button>
+      <div class="modal-card"><div class="modal-head"><div><p class="modal-kicker">PERSONAL DEMO CONNECTION</p><h3 id="settings-title">Gemini settings</h3></div><button class="close-modal" id="close-settings" type="button" aria-label="Close settings">×</button></div><p class="modal-text">Enter a Google Gemini API key for this browser session. It is never written to local storage, cookies, or this file; it is cleared on refresh or close.</p><label class="form-label" for="gemini-key">GEMINI API KEY</label><input class="key-input" id="gemini-key" type="password" autocomplete="off" spellcheck="false" placeholder="Paste your Gemini API key" /><p class="modal-state" id="gemini-state">No key connected. Requests will use Gemini 1.5 Flash.</p><div class="modal-actions"><button class="secondary" id="clear-key" type="button">Clear key</button><button class="secondary" id="cancel-settings" type="button">Cancel</button><button class="save-key" id="save-key" type="button">Use key</button></div></div>
+    </section>
+  </div>
+
+  <script>
+    const GEMINI_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=";
+    const prompts = ["Explain machine learning simply.", "Help me plan a project.", "Analyse this problem.", "Teach me this concept step by step."];
+    let messages = [];
+    let soundEnabled = true;
+    let audioContext;
+    let typingTimer;
+    let geminiApiKey = "";
+    let lastError = "";
+
+    const $ = (id) => document.getElementById(id);
+    const container = $("messages");
+    const input = $("chat-input");
+    const send = $("send-button");
+    const core = $("ai-core");
+    const coreCopy = $("core-copy");
+    const statusCopy = $("status-copy");
+    const settingsModal = $("settings-modal");
+    const geminiKeyInput = $("gemini-key");
+    const geminiState = $("gemini-state");
+
+    function escapeHTML(value) { return value.replace(/[&<>'"]/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#039;",'"':"&quot;"}[char])); }
+    function stripEmoji(value) { return value.replace(/(?:[\uD83C-\uDBFF][\uDC00-\uDFFF]|[\u2600-\u27BF])/g, "").replace(/[\u200D\uFE0E\uFE0F]/g, "").replace(/[ \t]+\n/g, "\n").trim(); }
+    function scrollToBottom() { container.scrollTo({ top: container.scrollHeight, behavior: "smooth" }); }
+    function focusChat() { $("assistant-console").scrollIntoView({ behavior:"smooth", block:"center" }); setTimeout(() => input.focus(), 320); }
+    function render() {
+      if (!messages.length) {
+        container.innerHTML = `<div class="empty"><span class="empty-badge">◉</span><p class="eyebrow">START A CONVERSATION</p><h3>What would you like to explore?</h3><p>Ask a clear question, or begin with one of the focused prompts below.</p><div class="prompt-list">${prompts.map(prompt => `<button type="button" class="prompt" data-prompt="${escapeHTML(prompt)}"><span>${escapeHTML(prompt)}</span><span>›</span></button>`).join("")}</div></div>`;
+        container.querySelectorAll("[data-prompt]").forEach(button => button.addEventListener("click", () => submitMessage(button.dataset.prompt)));
+        return;
+      }
+      container.innerHTML = messages.map(message => `<article class="message ${message.role === "user" ? "user" : ""}"><span class="msg-avatar">${message.role === "user" ? "U" : "◉"}</span><div class="bubble"><span class="label">${message.role === "user" ? "YOU" : "NOVA"}</span>${escapeHTML(message.content)}</div></article>`).join("") + (typingTimer ? `<div class="typing"><span>Processing context</span><span class="dots"><i></i><i></i><i></i></span></div>` : "") + (lastError ? `<p class="error" role="alert">${escapeHTML(lastError)}</p>` : "");
+      scrollToBottom();
+    }
+    function setThinking(active) {
+      core.classList.toggle("thinking", active);
+      coreCopy.textContent = active ? "Processing context" : "Awaiting signal";
+      statusCopy.textContent = active ? "PROCESSING YOUR CONTEXT" : "SESSION-READY INTELLIGENCE";
+      send.disabled = active;
+      if (active) { typingTimer = 1; startTypingSound(); } else { typingTimer = 0; stopTypingSound(); }
+      render();
+    }
+    function typeResponse(content) {
+      const response = { role:"assistant", content:"" };
+      messages.push(response);
+      let index = 0;
+      const step = Math.max(1, Math.ceil(content.length / 90));
+      const timer = setInterval(() => {
+        response.content = content.slice(0, index += step);
+        render();
+        if (index >= content.length) { clearInterval(timer); coreCopy.textContent = "Awaiting signal"; statusCopy.textContent = "SESSION-READY INTELLIGENCE"; }
+      }, 17);
+    }
+    function openSettings() { settingsModal.hidden = false; geminiKeyInput.value = geminiApiKey; window.setTimeout(() => geminiKeyInput.focus(), 30); }
+    function closeSettings() { settingsModal.hidden = true; }
+    function updateGeminiState() { geminiState.textContent = geminiApiKey ? "Gemini key ready for this page session. It will be cleared on refresh or close." : "No key connected. Requests will use Gemini 1.5 Flash."; geminiState.classList.toggle("ready", Boolean(geminiApiKey)); }
+    function buildGeminiContents() { return messages.map(message => ({ role: message.role === "assistant" ? "model" : "user", parts: [{ text: message.content }] })); }
+    function readGeminiResponse(data) { return data?.candidates?.[0]?.content?.parts?.[0]?.text || ""; }
+    async function submitMessage(value) {
+      const content = (value || input.value).trim();
+      if (!content || typingTimer) return;
+      lastError = "";
+      if (!geminiApiKey) { lastError = "Add a Gemini API key in Settings before sending a prompt."; render(); openSettings(); return; }
+      const userMessage = content;
+      messages.push({ role:"user", content: userMessage }); input.value = ""; setThinking(true);
+      try {
+        const response = await fetch(`${GEMINI_ENDPOINT}${encodeURIComponent(geminiApiKey)}`, { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ contents: [{ parts: [{ text: userMessage }] }] }) });
+        const data = await response.json();
+        if (!response.ok) {
+          console.error("[Gemini API] Request failed", { status: response.status, statusText: response.statusText, error: data?.error, response: data });
+          throw new Error(data?.error?.message || `Gemini request failed with HTTP ${response.status}.`);
+        }
+        const clean = stripEmoji(readGeminiResponse(data));
+        if (!clean) {
+          console.error("[Gemini API] Response contained no displayable candidate text", data);
+          throw new Error("Gemini returned no displayable text.");
+        }
+        setThinking(false); typeResponse(clean);
+      } catch (error) {
+        console.error("[Gemini API] Chat request could not complete", error);
+        setThinking(false); lastError = error instanceof Error ? error.message : "Gemini could not complete that request."; render();
+      }
+    }
+    function startTypingSound() {
+      if (!soundEnabled || !window.AudioContext && !window.webkitAudioContext) return;
+      const Audio = window.AudioContext || window.webkitAudioContext;
+      audioContext = audioContext || new Audio();
+      const ping = () => {
+        if (!typingTimer || !soundEnabled) return;
+        const oscillator = audioContext.createOscillator(); const gain = audioContext.createGain();
+        oscillator.type = "sine"; oscillator.frequency.value = 560 + Math.random() * 75;
+        gain.gain.setValueAtTime(.012, audioContext.currentTime); gain.gain.exponentialRampToValueAtTime(.0001, audioContext.currentTime + .045);
+        oscillator.connect(gain); gain.connect(audioContext.destination); oscillator.start(); oscillator.stop(audioContext.currentTime + .05);
+      };
+      ping(); window.clearInterval(window.typingSoundInterval); window.typingSoundInterval = window.setInterval(ping, 290);
+    }
+    function stopTypingSound() { window.clearInterval(window.typingSoundInterval); }
+    $("chat-form").addEventListener("submit", event => { event.preventDefault(); submitMessage(); });
+    input.addEventListener("keydown", event => { if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); submitMessage(); } });
+    $("clear-chat").addEventListener("click", () => { if (typingTimer) return; messages = []; render(); input.focus(); });
+    $("talk-button").addEventListener("click", focusChat); $("open-chat").addEventListener("click", focusChat); $("explore-button").addEventListener("click", focusChat); core.addEventListener("click", focusChat);
+    $("sound-toggle").addEventListener("click", event => { soundEnabled = !soundEnabled; event.currentTarget.classList.toggle("on", soundEnabled); event.currentTarget.setAttribute("aria-pressed", String(soundEnabled)); event.currentTarget.textContent = soundEnabled ? "SOUND: ON" : "SOUND: OFF"; if (!soundEnabled) stopTypingSound(); });
+    $("open-settings").addEventListener("click", openSettings); $("close-settings").addEventListener("click", closeSettings); $("cancel-settings").addEventListener("click", closeSettings); $("settings-backdrop").addEventListener("click", closeSettings);
+    $("save-key").addEventListener("click", () => { geminiApiKey = geminiKeyInput.value.trim(); updateGeminiState(); closeSettings(); input.focus(); });
+    $("clear-key").addEventListener("click", () => { geminiApiKey = ""; geminiKeyInput.value = ""; updateGeminiState(); geminiKeyInput.focus(); });
+    document.addEventListener("keydown", event => { if (event.key === "Escape" && !settingsModal.hidden) closeSettings(); });
+    updateGeminiState();
+    render();
+  </script>
+</body>
+</html>
